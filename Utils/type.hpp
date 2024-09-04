@@ -71,6 +71,16 @@ public:
     FixedPoint operator-() const {
         return FixedPoint(!sign, int_value, frac_value);
     }
+    // Friend Function
+    friend FixedPoint abs(const FixedPoint& fp) {
+        return FixedPoint(false, fp.int_value, fp.frac_value);
+    }
+    //friend FixedPoint sqrt(const FixedPoint& fp);
+    //friend FixedPoint exp(const FixedPoint& fp);
+    //friend FixedPoint log(const FixedPoint& fp);
+    //friend FixedPoint sin(const FixedPoint& fp);
+    //friend FixedPoint cos(const FixedPoint& fp);
+    
     // Binary Operator
     FixedPoint operator+(const FixedPoint& other) const {
         if (sign == other.sign) {
@@ -87,8 +97,24 @@ public:
     FixedPoint operator-(const FixedPoint& other) const {
         return *this + (-other);
     };
-    //FixedPoint operator*(const FixedPoint& other) const;
+    FixedPoint operator*(const FixedPoint& other) const {
+        bool new_sign = sign ^ other.sign;
+        uint64_t new_val1 = (int_value << fraction) + frac_value,
+                 new_val2 = (other.int_value << fraction) + other.frac_value;
+        uint64_t new_result = 0;
+        for (int i = 0; i < fraction; i++) {
+            if (new_val2 & 1) {
+                new_result += new_val1;
+            }
+            new_val1 <<= 1;
+            new_val2 >>= 1;
+        }
+        uint64_t new_int = new_result >> (fraction * 2),
+                    new_frac = new_result & ((1 << fraction) - 1);
+        return FixedPoint(new_sign, new_int, new_frac);
+    };
     //FixedPoint operator/(const FixedPoint& other) const;
+
     // Comparison Operator
     bool operator==(const FixedPoint& other) const {
         return sign == other.sign && int_value == other.int_value && frac_value == other.frac_value;
