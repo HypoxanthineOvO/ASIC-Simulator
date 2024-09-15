@@ -48,6 +48,12 @@ int main() {
 
     FixedPoint<2, 8> fp_div_1 = fp_mul_1 / fp_mul_2;
     printf("\tFP_Div_1 = FP_Mul_1 / FP_Mul_2: %s\n", fp_div_1.to_c_string());
+    FixedPoint<2, 8> fp_div_2(0.75);
+    printf("\tFP_Div_2: %s\n", fp_div_2.to_c_string());
+    FixedPoint<2, 8> fp_div_3(0.25);
+    printf("\tFP_Div_3: %s\n", fp_div_3.to_c_string());
+    FixedPoint<2, 8> fp_div_4 = fp_div_2 / fp_div_3;
+    printf("\tFP_Div_4 = FP_Div_2 / FP_Div_3: %s\n", fp_div_4.to_c_string());
 
     puts("3. Test Binary Operator of FixedPoint");
 

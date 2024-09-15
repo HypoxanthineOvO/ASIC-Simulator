@@ -208,8 +208,8 @@ public:
                  other_val =  (other.int_value << frac_length) | other.frac_value;
         
         __uint128_t self_val_128 = self_val, other_val_128 = other_val;
-        __uint128_t new_val = (self_val_128 << frac_length) / other_val_128;
-        uint64_t new_int = new_val >> frac_length,
+        __uint128_t new_val = (self_val_128 << frac_length) / other_val_128; // Get more precision
+        uint64_t new_int = (new_val >> frac_length) & int_mask,
                  new_frac = new_val & frac_mask;
 
         return FixedPoint(new_sign, new_int, new_frac);
