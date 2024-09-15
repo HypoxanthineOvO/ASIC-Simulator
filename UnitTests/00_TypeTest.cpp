@@ -46,6 +46,9 @@ int main() {
     FixedPoint<2, 8> fp_mul_3 = fp_mul_1 * fp_mul_2;
     printf("\tFP_Mul_3 = FP_Mul_1 * FP_Mul_2: %s\n", fp_mul_3.to_c_string());
 
+    FixedPoint<2, 8> fp_div_1 = fp_mul_1 / fp_mul_2;
+    printf("\tFP_Div_1 = FP_Mul_1 / FP_Mul_2: %s\n", fp_div_1.to_c_string());
+
     puts("3. Test Binary Operator of FixedPoint");
 
     puts("4. Test Comparison Operator of FixedPoint");

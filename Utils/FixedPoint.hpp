@@ -198,7 +198,28 @@ public:
     FixedPoint operator*(const FixedPoint& other) const {
         return mul(other);
     };
-    //FixedPoint operator/(const FixedPoint& other) const;
+
+    // Division
+    FixedPoint div(const FixedPoint& other) const {
+        // Get the sign of the result
+        bool new_sign = sign ^ other.sign;
+
+        uint64_t self_val = (int_value << frac_length) | frac_value,
+                 other_val =  (other.int_value << frac_length) | other.frac_value;
+        
+        __uint128_t self_val_128 = self_val, other_val_128 = other_val;
+        __uint128_t new_val = (self_val_128 << frac_length) / other_val_128;
+        uint64_t new_int = new_val >> frac_length,
+                 new_frac = new_val & frac_mask;
+
+        return FixedPoint(new_sign, new_int, new_frac);
+    }
+    friend FixedPoint div(const FixedPoint& fp1, const FixedPoint& fp2) {
+        return fp1.div(fp2);
+    }
+    FixedPoint operator/(const FixedPoint& other) const {
+        return div(other);
+    };
 
     // Comparison Operator
     bool operator==(const FixedPoint& other) const {
