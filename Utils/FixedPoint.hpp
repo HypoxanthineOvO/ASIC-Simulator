@@ -5,6 +5,7 @@
 template <uint64_t integer, uint64_t fraction>
 class FixedPoint {
 public:
+    /* Constructors */
     // Default: Initialize to Fixed Point 0
     FixedPoint(): sign(false), int_value(0), frac_value(0),
         int_length(integer), frac_length(fraction),
@@ -50,6 +51,42 @@ public:
         int_value &= int_mask;
         frac_value &= frac_mask;
     };
+    // Initialize with string
+    FixedPoint(std::string val_str, int base = 2):
+            int_length(integer), frac_length(fraction),
+            int_mask((1 << integer) - 1), frac_mask((1 << fraction) - 1) {
+        if (base != 2) {
+            puts("Only support binary string initialization now.");
+            exit(1);
+        }
+        // Sign
+        sign = (val_str[0] == '-');
+        if (sign) {
+            val_str = val_str.substr(1);
+        }
+        // Integer and Fraction
+        int_value = 0;
+        frac_value = 0;
+        int end = val_str.find('.');
+        if (end == std::string::npos) {
+            int_value = std::stoull(val_str, nullptr, base);
+        } else {
+            int_value = std::stoull(val_str.substr(0, end), nullptr, base);
+            frac_value = std::stoull(val_str.substr(end + 1, frac_length), nullptr, base);
+        }
+        int_value &= int_mask;
+        // Move the fraction part to the right position
+        // Show the binary value of self_val and other_val
+        int frac_str_length = val_str.length() - end - 1;
+        if (frac_str_length > fraction) {
+            frac_value >>= (frac_str_length - fraction);
+        }
+        else if (frac_str_length < fraction) {
+            frac_value <<= (fraction - frac_str_length);
+        }
+        frac_value &= frac_mask;
+    }
+    
     // Copy Constructor
     FixedPoint(const FixedPoint& other): sign(other.sign), 
         int_length(integer), frac_length(fraction),
@@ -70,7 +107,7 @@ public:
         return *this;
     }
 
-    // Unary Operator
+    /* Unary Operator */
     FixedPoint neg() const {
         return FixedPoint(!sign, int_value, frac_value);
     }
@@ -94,27 +131,29 @@ public:
     // friend FixedPoint sin(const FixedPoint& fp);
     // friend FixedPoint cos(const FixedPoint& fp);
     
-    // Binary Operator
+    /* Binary Operator */
+    // Addition
     FixedPoint add(const FixedPoint& other) const {
         uint64_t self_sign = sign, other_sign = other.sign;
-        printf("self_sign: %d, other_sign: %d\n", self_sign, other_sign);
         uint64_t self_val = (int_value << frac_length) | frac_value,
                  other_val =  (other.int_value << frac_length) | other.frac_value;
-        
         if (sign) {
             self_val = ~self_val + 1;
         }
-        if (other.sign) {
+        if (other_sign) {
             other_val = ~other_val + 1;
         }
         self_val |= (self_sign << (int_length + frac_length));
         other_val |= (other_sign << (int_length + frac_length));
+
         
         // Show the binary value of self_val and other_val
         uint64_t new_val = self_val + other_val;
 
-
         bool new_sign = (new_val >> (int_length + frac_length)) & 1;
+        if (new_sign) {
+            new_val = ~new_val + 1;
+        }
         uint64_t new_int = (new_val >> frac_length) & int_mask,
                     new_frac = new_val & frac_mask;
 
@@ -127,6 +166,7 @@ public:
     FixedPoint operator+(const FixedPoint& other) const {
         return add(other);
     };
+    // Subtraction
     FixedPoint sub(const FixedPoint& other) const {
         return add(other.neg());
     }
@@ -136,8 +176,27 @@ public:
     FixedPoint operator-(const FixedPoint& other) const {
         return sub(other);
     };
-    FixedPoint operator*(const FixedPoint& other) const {
 
+    // Multiplication
+    FixedPoint mul(const FixedPoint& other) const {
+        // Get the sign of the result
+        bool new_sign = sign ^ other.sign;
+
+        uint64_t self_val = (int_value << frac_length) | frac_value,
+                 other_val =  (other.int_value << frac_length) | other.frac_value;
+        
+        __uint128_t self_val_128 = self_val, other_val_128 = other_val;
+        __uint128_t new_val = self_val_128 * other_val_128;
+        uint64_t new_int = new_val >> (frac_length * 2),
+                 new_frac = (new_val >> frac_length) & frac_mask;
+
+        return FixedPoint(new_sign, new_int, new_frac);
+    }
+    friend FixedPoint mul(const FixedPoint& fp1, const FixedPoint& fp2) {
+        return fp1.mul(fp2);
+    }
+    FixedPoint operator*(const FixedPoint& other) const {
+        return mul(other);
     };
     //FixedPoint operator/(const FixedPoint& other) const;
 
@@ -186,7 +245,15 @@ public:
         // Transform frac_value(Binary) to string(Decimal)
         // e.g. frac = 4 = 0100, length = 4 -> string: "2500"
         uint64_t frac = frac_value;
-        for (int i = 0; i < fraction; i++) {
+        int transfer_length = 0, tmp = 1;
+        while(true) {
+            transfer_length++;
+            if ((frac / tmp) == 0) {
+                break;
+            }
+            tmp *= 10;
+        }
+        for (int i = 0; i < transfer_length; i++) {
             frac *= 10;
             num_str += std::to_string(frac >> fraction);
             frac &= frac_mask;
@@ -194,7 +261,9 @@ public:
         return num_str;
     }
     const char* to_c_string() const {
-        return to_string().c_str();
+        const std::string& str = to_string();
+        const char* c_str = str.c_str();
+        return c_str;
     }
     friend std::ostream& operator<<(std::ostream& os, const FixedPoint& fp) {
         os << (fp.sign ? "-" : "") << fp.int_value << "." << fp.frac_value;
