@@ -126,7 +126,84 @@ public:
     }
     // TODO: Implement these unary operators
     // friend FixedPoint sqrt(const FixedPoint& fp);
-    // friend FixedPoint exp(const FixedPoint& fp);
+    FixedPoint exp() const {
+        int rorate = int_length;
+        uint64_t frac_x = frac_value, int_x = int_value;
+
+        uint64_t exp_frac_pos[32], exp_frac_neg[32];
+        for (int i = 0; i < 32; i++) {
+            exp_frac_pos[i] = std::round(std::exp(1.0 / (1 << (i + 1))) * (1 << frac_length));
+            exp_frac_neg[i] = std::round(std::exp(-1.0 / (1 << (i + 1))) * (1 << frac_length));
+        }
+        uint64_t exp_int_pos[32], exp_int_neg[32];
+        for (int i = 0; i < int_length; i++) {
+            exp_int_pos[i] = std::round(std::exp(1 << i) * (1 << frac_length));
+            exp_int_neg[i] = std::round(std::exp(-1 << i) * (1 << frac_length));
+        }
+        uint64_t expx_int = 1, expx_frac = 1;
+        for (int i = 0; i < frac_length; i++) {
+            if (frac_x >> (frac_length - i - 1) & 1) {
+                if (sign) {
+                    expx_frac *= exp_frac_neg[i];
+                } else {
+                    expx_frac *= exp_frac_pos[i];
+                }
+            }
+        }
+        
+        if (int_x == 0) {
+            expx_int = 1 << frac_length;
+        }
+        else {
+            for (int i = 0; i < int_length; i++) {
+                if (int_x & (1 << i)) {
+                    if (sign) {
+                        expx_int *= exp_int_neg[i];
+                    } else {
+                        expx_int *= exp_int_pos[i];
+                    }
+                }
+            }
+        }
+        uint64_t expx_res = (expx_int * expx_frac) >> frac_length;
+
+        uint64_t expx_res_int = expx_res >> frac_length,
+                 expx_res_frac = expx_res & frac_mask;
+
+        FixedPoint expx(false, expx_res_int, expx_res_frac);
+        return expx;
+    }
+    friend FixedPoint exp(const FixedPoint& fp) {
+        return fp.exp();
+    };
+    FixedPoint sigmoid() const {
+        FixedPoint x(std::move(*this));
+        FixedPoint result(0);
+        if (frac_length < 3) {
+            printf("CNM, 小数部分就只给 %d 位，你 Sigmoid 个锤子啊！\n", frac_length);
+            return FixedPoint(0.5);
+        }
+        if (frac_length < 5) {
+            // frac_length < 5
+            if (int_length >= 2 && x.abs() >= FixedPoint(4.0))  result = FixedPoint(1.0);
+            else if (x.abs() >= FixedPoint(1.0))                result = FixedPoint(0.125) * x + FixedPoint(0.625);
+            else                                                result = FixedPoint(0.25) * x + FixedPoint(0.5);
+        }
+        else {
+            // frac_length >= 5
+            if (int_length >= 3 && x.abs() >= FixedPoint(5.0))          result = FixedPoint(1.0);
+            else if (int_length >= 2 && x.abs() >= FixedPoint(2.375))   result = FixedPoint(0.03125) * x + FixedPoint(0.84375);
+            else if (int_length >= 1 && x.abs() >= FixedPoint(1.0))     result = FixedPoint(0.125) * x + FixedPoint(0.625);
+            else                                                        result = FixedPoint(0.25) * x + FixedPoint(0.5);
+        }
+        // For negative value, sigmoid(-x) = 1 - sigmoid(x)
+        if (sign) result = FixedPoint(1.0) - result;
+        
+        return result;
+    }
+    friend FixedPoint sigmoid(const FixedPoint& fp) {
+        return fp.sigmoid();
+    }
     // friend FixedPoint log(const FixedPoint& fp);
     // friend FixedPoint sin(const FixedPoint& fp);
     // friend FixedPoint cos(const FixedPoint& fp);
@@ -166,6 +243,13 @@ public:
     FixedPoint operator+(const FixedPoint& other) const {
         return add(other);
     };
+    friend FixedPoint operator+(int val, const FixedPoint& fp) {
+        return FixedPoint(val) + fp;
+    }
+    friend FixedPoint operator+(const FixedPoint& fp, int val) {
+        return fp + FixedPoint(val);
+    }
+
     // Subtraction
     FixedPoint sub(const FixedPoint& other) const {
         return add(other.neg());
@@ -192,13 +276,23 @@ public:
 
         return FixedPoint(new_sign, new_int, new_frac);
     }
+    FixedPoint mul(int other_val) const {
+        uint64_t self_val = (int_value << frac_length) | frac_value;
+        __uint128_t self_val_128 = self_val;
+        __uint128_t new_val = self_val_128 * (other_val << frac_length);
+        uint64_t new_int = new_val >> frac_length,
+                 new_frac = new_val & frac_mask;
+        return FixedPoint(sign, new_int, new_frac);
+    }
     friend FixedPoint mul(const FixedPoint& fp1, const FixedPoint& fp2) {
         return fp1.mul(fp2);
     }
     FixedPoint operator*(const FixedPoint& other) const {
         return mul(other);
     };
-
+    FixedPoint operator*(int other_val) const {
+        return mul(other_val);
+    };
     // Division
     FixedPoint div(const FixedPoint& other) const {
         // Get the sign of the result
@@ -214,12 +308,26 @@ public:
 
         return FixedPoint(new_sign, new_int, new_frac);
     }
+    FixedPoint div(int other_val) const {
+        uint64_t self_val = (int_value << frac_length) | frac_value;
+        __uint128_t self_val_128 = (self_val << frac_length);
+        __uint128_t new_val = self_val_128 / (other_val << frac_length);
+        uint64_t new_int = (new_val >> frac_length) & int_mask,
+                 new_frac = new_val & frac_mask;
+        return FixedPoint(sign, new_int, new_frac);
+    }
     friend FixedPoint div(const FixedPoint& fp1, const FixedPoint& fp2) {
         return fp1.div(fp2);
     }
     FixedPoint operator/(const FixedPoint& other) const {
         return div(other);
     };
+    FixedPoint operator/(int other_val) const {
+        return div(other_val);
+    };
+    friend FixedPoint operator/(int val, const FixedPoint& fp) {
+        return FixedPoint(val) / fp;
+    }
 
     // Comparison Operator
     bool operator==(const FixedPoint& other) const {

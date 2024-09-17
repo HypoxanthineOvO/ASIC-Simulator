@@ -23,6 +23,52 @@ int main() {
     // TODO: Noticed that initialize from other FixedPoint maybe lose some information
 
     puts("2. Test Unary Operator of FixedPoint");
+    FixedPoint<2, 4> fp_neg_1(0.25);
+    printf("\tFP_Neg_1: %s\n", fp_neg_1.to_c_string());
+    FixedPoint<2, 4> fp_neg_2 = -fp_neg_1;
+    printf("\tFP_Neg_2 = - FP_Neg_1: %s\n", fp_neg_2.to_c_string());
+    printf("\n");
+
+    FixedPoint<2, 4> fp_abs_1(-0.25);
+    printf("\tFP_Abs_1: %s\n", fp_abs_1.to_c_string());
+    FixedPoint<2, 4> fp_abs_2 = fp_abs_1.abs();
+    printf("\tFP_Abs_2 = abs(FP_Abs_1): %s\n", fp_abs_2.to_c_string());
+    printf("\n");
+
+    FixedPoint<8, 8> fp_exp_1(1.5);
+    printf("\tFP_Exp_1: %s\n", fp_exp_1.to_string().c_str());
+    FixedPoint<8, 8> fp_exp_2 = exp(fp_exp_1);
+    printf("\tFP_Exp_2 = exp(FP_Exp_1): %s\n", fp_exp_2.to_c_string());
+    FixedPoint<8, 8> fp_exp_3(-1.5);
+    printf("\tFP_Exp_3: %s\n", fp_exp_3.to_string().c_str());
+    FixedPoint<8, 8> fp_exp_4 = exp(fp_exp_3);
+    printf("\tFP_Exp_4 = exp(FP_Exp_3): %s\n", fp_exp_4.to_c_string());
+    FixedPoint<8, 8> fp_exp_5(0.5);
+    printf("\tFP_Exp_5: %s\n", fp_exp_5.to_string().c_str());
+    FixedPoint<8, 8> fp_exp_6 = exp(fp_exp_5);
+    printf("\tFP_Exp_6 = exp(FP_Exp_5): %s\n", fp_exp_6.to_c_string());
+    FixedPoint<8, 8> fp_exp_7(5);
+    printf("\tFP_Exp_7: %s\n", fp_exp_7.to_string().c_str());
+    FixedPoint<8, 8> fp_exp_8 = exp(fp_exp_7);
+    printf("\tFP_Exp_8 = exp(FP_Exp_7): %s\n", fp_exp_8.to_c_string());
+    printf("\n");
+    exit(0);
+
+    FixedPoint<1, 6> fp_sigmoid_1(0.25);
+    printf("\tFP_Sigmoid_1: %s\n", fp_sigmoid_1.to_string().c_str());
+    FixedPoint<1, 6> fp_sigmoid_2 = sigmoid(fp_sigmoid_1);
+    printf("\tFP_Sigmoid_2 = sigmoid(FP_Sigmoid_1): %s\n", fp_sigmoid_2.to_c_string());
+    FixedPoint<1, 2> fp_sigmoid_3(0.25);
+    printf("\tFP_Sigmoid_3: %s\n", fp_sigmoid_3.to_string().c_str());
+    FixedPoint<1, 2> fp_sigmoid_4 = sigmoid(fp_sigmoid_3);
+    printf("\tFP_Sigmoid_4 = sigmoid(FP_Sigmoid_3): %s\n", fp_sigmoid_4.to_c_string());
+    FixedPoint<1, 4> fp_sigmoid_5(0.25);
+    printf("\tFP_Sigmoid_5: %s\n", fp_sigmoid_5.to_string().c_str());
+    FixedPoint<1, 4> fp_sigmoid_6 = sigmoid(fp_sigmoid_5);
+    printf("\tFP_Sigmoid_6 = sigmoid(FP_Sigmoid_5): %s\n", fp_sigmoid_6.to_c_string());
+    printf("\n");
+
+    puts("3. Test Binary Operator of FixedPoint");
     FixedPoint<2, 4> fp_add_1(0.25);
     FixedPoint<2, 4> fp_add_2(0.75);
     printf("\tFP_Add_1: %s\n", fp_add_1.to_c_string());
@@ -54,8 +100,11 @@ int main() {
     printf("\tFP_Div_3: %s\n", fp_div_3.to_c_string());
     FixedPoint<2, 8> fp_div_4 = fp_div_2 / fp_div_3;
     printf("\tFP_Div_4 = FP_Div_2 / FP_Div_3: %s\n", fp_div_4.to_c_string());
-
-    puts("3. Test Binary Operator of FixedPoint");
+    FixedPoint<2, 8> fp_div_5(1.5);
+    printf("\tFP_Div_5: %s\n", fp_div_5.to_c_string());
+    FixedPoint<2, 8> fp_div_6 = fp_div_5 / 1;
+    printf("\tFP_Div_6 = FP_Div_5 / 1: %s\n", fp_div_6.to_c_string());
+    printf("\n");
 
     puts("4. Test Comparison Operator of FixedPoint");
 
