@@ -26,7 +26,7 @@ typedef enum {
 // Operation on single element
 template <typename DATA_TYPE>
 DATA_TYPE sigmoid(DATA_TYPE x) {
-    return 1 / (1 + std::exp(-x));
+    return 1 / (1 + exp(-x));
 }
 template <typename DATA_TYPE>
 DATA_TYPE relu(DATA_TYPE x) {
