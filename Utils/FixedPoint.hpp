@@ -1,6 +1,9 @@
 #ifndef FIXEDPOINT_HPP_
 #define FIXEDPOINT_HPP_
 
+#define SIN_PI_X 0
+#define COS_PI_X -1
+
 #include <cstdint>
 template <uint64_t integer, uint64_t fraction>
 class FixedPoint {
@@ -150,7 +153,7 @@ public:
                 }
             }
         }
-        
+
         if (int_x == 0) {
             expx_int = 1 << frac_length;
         }
@@ -205,8 +208,17 @@ public:
         return fp.sigmoid();
     }
     // friend FixedPoint log(const FixedPoint& fp);
-    // friend FixedPoint sin(const FixedPoint& fp);
-    // friend FixedPoint cos(const FixedPoint& fp);
+    FixedPoint sin_pi() {
+    }
+    friend FixedPoint sin_pi(const FixedPoint& fp) {
+        return fp.sin_pi();
+    }
+    FixedPoint cos_pi() {
+
+    }
+    friend FixedPoint cos_pi(const FixedPoint& fp) {
+        return fp.cos_pi();
+    }
     
     /* Binary Operator */
     // Addition
@@ -374,18 +386,14 @@ public:
         // Transform frac_value(Binary) to string(Decimal)
         // e.g. frac = 4 = 0100, length = 4 -> string: "2500"
         uint64_t frac = frac_value;
-        int transfer_length = 0, tmp = 1;
-        while(true) {
-            transfer_length++;
-            if ((frac / tmp) == 0) {
-                break;
-            }
-            tmp *= 10;
-        }
-        for (int i = 0; i < transfer_length; i++) {
+        for (int i = 0; i < fraction; i++) {
             frac *= 10;
             num_str += std::to_string(frac >> fraction);
             frac &= frac_mask;
+        }
+        // Remove the possible trailing zeros
+        while (num_str.back() == '0') {
+            num_str.pop_back();
         }
         return num_str;
     }
