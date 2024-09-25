@@ -207,6 +207,15 @@ public:
     friend FixedPoint sigmoid(const FixedPoint& fp) {
         return fp.sigmoid();
     }
+    FixedPoint relu() const{
+        if (sign) {
+            return FixedPoint(0);
+        }
+        return FixedPoint(std::move(*this));
+    }
+    friend FixedPoint relu(const FixedPoint& fp) {
+        return fp.relu();
+    }
     // friend FixedPoint log(const FixedPoint& fp);
     FixedPoint sin_pi() {
     }
@@ -261,6 +270,25 @@ public:
     friend FixedPoint operator+(const FixedPoint& fp, int val) {
         return fp + FixedPoint(val);
     }
+    friend FixedPoint operator+(double val, const FixedPoint& fp) {
+        return FixedPoint(val) + fp;
+    }
+    friend FixedPoint operator+(const FixedPoint& fp, double val) {
+        return fp + FixedPoint(val);
+    }
+    FixedPoint operator+=(const FixedPoint& other) {
+        *this = add(other);
+        return *this;
+    }
+    FixedPoint operator+=(int val) {
+        *this = add(FixedPoint(val));
+        return *this;
+    }
+    FixedPoint operator+=(double val) {
+        *this = add(FixedPoint(val));
+        return *this;
+    }
+
 
     // Subtraction
     FixedPoint sub(const FixedPoint& other) const {
@@ -272,6 +300,30 @@ public:
     FixedPoint operator-(const FixedPoint& other) const {
         return sub(other);
     };
+    friend FixedPoint operator-(int val, const FixedPoint& fp) {
+        return FixedPoint(val) - fp;
+    }
+    friend FixedPoint operator-(const FixedPoint& fp, int val) {
+        return fp - FixedPoint(val);
+    }
+    friend FixedPoint operator-(double val, const FixedPoint& fp) {
+        return FixedPoint(val) - fp;
+    }
+    friend FixedPoint operator-(const FixedPoint& fp, double val) {
+        return fp - FixedPoint(val);
+    }
+    FixedPoint operator-=(const FixedPoint& other) {
+        *this = sub(other);
+        return *this;
+    }
+    FixedPoint operator-=(int val) {
+        *this = sub(FixedPoint(val));
+        return *this;
+    }
+    FixedPoint operator-=(double val) {
+        *this = sub(FixedPoint(val));
+        return *this;
+    }
 
     // Multiplication
     FixedPoint mul(const FixedPoint& other) const {
@@ -305,6 +357,32 @@ public:
     FixedPoint operator*(int other_val) const {
         return mul(other_val);
     };
+    friend FixedPoint operator*(int val, const FixedPoint& fp) {
+        return FixedPoint(val) * fp;
+    }
+    friend FixedPoint operator*(double val, const FixedPoint& fp) {
+        return FixedPoint(val) * fp;
+    }
+    friend FixedPoint operator*(const FixedPoint& fp, double val) {
+        return fp * FixedPoint(val);
+    }
+    friend FixedPoint operator*(const FixedPoint& fp, int val) {
+        return fp * FixedPoint(val);
+    }
+    FixedPoint operator*=(const FixedPoint& other) {
+        *this = mul(other);
+        return *this;
+    }
+    FixedPoint operator*=(int val) {
+        *this = mul(val);
+        return *this;
+    }
+    FixedPoint operator*=(double val) {
+        *this = mul(val);
+        return *this;
+    }
+
+
     // Division
     FixedPoint div(const FixedPoint& other) const {
         // Get the sign of the result
@@ -339,6 +417,27 @@ public:
     };
     friend FixedPoint operator/(int val, const FixedPoint& fp) {
         return FixedPoint(val) / fp;
+    }
+    friend FixedPoint operator/(const FixedPoint& fp, int val) {
+        return fp / FixedPoint(val);
+    }
+    friend FixedPoint operator/(double val, const FixedPoint& fp) {
+        return FixedPoint(val) / fp;
+    }
+    friend FixedPoint operator/(const FixedPoint& fp, double val) {
+        return fp / FixedPoint(val);
+    }
+    FixedPoint operator/=(const FixedPoint& other) {
+        *this = div(other);
+        return *this;
+    }
+    FixedPoint operator/=(int val) {
+        *this = div(val);
+        return *this;
+    }
+    FixedPoint operator/=(double val) {
+        *this = div(val);
+        return *this;
     }
 
     // Comparison Operator
@@ -384,7 +483,6 @@ public:
         }
         num_str += std::to_string(int_value) + ".";
         // Transform frac_value(Binary) to string(Decimal)
-        // e.g. frac = 4 = 0100, length = 4 -> string: "2500"
         uint64_t frac = frac_value;
         for (int i = 0; i < fraction; i++) {
             frac *= 10;
@@ -397,6 +495,9 @@ public:
         }
         return num_str;
     }
+    friend std::string to_string(const FixedPoint& fp) {
+        return fp.to_string();
+    }
     const char* to_c_string() const {
         const std::string& str = to_string();
         const char* c_str = str.c_str();
@@ -405,6 +506,12 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const FixedPoint& fp) {
         os << (fp.sign ? "-" : "") << fp.int_value << "." << fp.frac_value;
         return os;
+    }
+    friend std::istream& operator>>(std::istream& is, FixedPoint& fp) {
+        float num_float;
+        is >> num_float;
+        fp = FixedPoint(num_float);
+        return is;
     }
 
 private:
