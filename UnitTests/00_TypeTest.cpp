@@ -87,6 +87,7 @@ int main() {
     printf("\tFP_Add_7: %s\n", fp_add_7.to_c_string());
     FixedPoint<2, 4> fp_add_8 = fp_add_6 + fp_add_7;
     printf("\tFP_Add_8 = FP_Add_6 + FP_Add_7: %s\n", fp_add_8.to_c_string());
+    // Test Overload "<<"
     std::cout << "\tFP_Add_6 + FP_Add_7: " << (fp_add_6 + fp_add_7) << std::endl << std::endl;
 
     FixedPoint<2, 4> fp_sub_1 = fp_add_1 - fp_add_2;
