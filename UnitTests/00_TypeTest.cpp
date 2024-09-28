@@ -52,7 +52,7 @@ int main() {
     FixedPoint<8, 8> fp_exp_8 = exp(fp_exp_7);
     printf("\tFP_Exp_8 = exp(FP_Exp_7): %s\n", fp_exp_8.to_c_string());
     printf("\n");
-    exit(0);
+
 
     FixedPoint<1, 6> fp_sigmoid_1(0.25);
     printf("\tFP_Sigmoid_1: %s\n", fp_sigmoid_1.to_string().c_str());
@@ -80,6 +80,14 @@ int main() {
     FixedPoint<2, 4> fp_add_5 = fp_add_1 + (-fp_add_2);
     printf("\tFP_Add_5 = FP_Add_1 + (- FP_Add_2): %s\n", fp_add_5.to_c_string());
     printf("\n");
+
+    FixedPoint<2, 4> fp_add_6(1.75);
+    printf("\tFP_Add_6: %s\n", fp_add_6.to_c_string());
+    FixedPoint<2, 4> fp_add_7(0.125);
+    printf("\tFP_Add_7: %s\n", fp_add_7.to_c_string());
+    FixedPoint<2, 4> fp_add_8 = fp_add_6 + fp_add_7;
+    printf("\tFP_Add_8 = FP_Add_6 + FP_Add_7: %s\n", fp_add_8.to_c_string());
+    std::cout << "\tFP_Add_6 + FP_Add_7: " << (fp_add_6 + fp_add_7) << std::endl << std::endl;
 
     FixedPoint<2, 4> fp_sub_1 = fp_add_1 - fp_add_2;
     printf("\tFP_Sub_1 = FP_Add_1 - FP_Add_2: %s\n", fp_sub_1.to_c_string());

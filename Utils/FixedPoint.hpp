@@ -504,7 +504,7 @@ public:
         return c_str;
     }
     friend std::ostream& operator<<(std::ostream& os, const FixedPoint& fp) {
-        os << (fp.sign ? "-" : "") << fp.int_value << "." << fp.frac_value;
+        os << fp.to_string();
         return os;
     }
     friend std::istream& operator>>(std::istream& is, FixedPoint& fp) {
