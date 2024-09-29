@@ -3,7 +3,8 @@
 
 #define SIN_PI_X 0
 #define COS_PI_X -1
-
+#define PI 3.1415926535
+#define Kn 0.607252935
 #include <cstdint>
 template <uint64_t integer, uint64_t fraction>
 class FixedPoint {
@@ -33,7 +34,7 @@ public:
         sign = (val < 0);
         float abs_val = std::abs(val);
         float val_int = std::floor(abs_val), val_frac = abs_val - val_int;
-        printf("val_int: %f, val_frac: %f\n", val_int, val_frac);
+        //printf("val_int: %f, val_frac: %f\n", val_int, val_frac);
         int_value = static_cast<uint64_t>(val_int);
         frac_value = static_cast<uint64_t>(
             std::round(val_frac * (1 << fraction))
@@ -217,16 +218,148 @@ public:
         return fp.relu();
     }
     // friend FixedPoint log(const FixedPoint& fp);
-    FixedPoint sin_pi() {
-    }
-    friend FixedPoint sin_pi(const FixedPoint& fp) {
-        return fp.sin_pi();
-    }
-    FixedPoint cos_pi() {
+    FixedPoint sin() const{
+        float LookUpTableF[16] = {
+        45, 26.56505118, 14.03624347, 7.125016349, 3.576333475, 1.789910608,
+        0.89517371, 0.447614171, 0.2238105, 0.111905677, 0.055952892, 0.027976453,
+        0.013988227, 0.006994114, 0.003497057, 0.001748528
+        };
+        uint64_t LookUpTableI[16];
+        for (int i = 0; i < 16;i++){
+            float angle = (LookUpTableF[i] * PI) / 180;
+            float ang_int = std::floor(angle), ang_frac = angle - ang_int; 
+            uint64_t int_value = static_cast<uint64_t>(ang_int);
+            uint64_t frac_value = static_cast<uint64_t>(std::round(ang_frac * (1 << fraction)));
+            LookUpTableI[i] = (int_value << frac_length) | frac_value;
+        }
+         for(int i =0;i<16;i++){
+            std::cout << "|" << LookUpTableI[i] << "|";
+        } 
+        bool sign_outside = sign;
+        float x_f = Kn;
+        float x_int = std::floor(x_f), x_frac = x_f - x_int; 
+        uint64_t x_int_value = static_cast<uint64_t>(x_int);
+        uint64_t x_frac_value = static_cast<uint64_t>(std::round(x_frac * (1 << fraction)));
+        uint64_t x_value = (x_int_value << fraction) | x_frac_value;
+        uint64_t y_value = 0;
 
+        FixedPoint<integer,fraction> self_abs = FixedPoint(false, int_value, frac_value);
+        while (self_abs > (2*PI))
+        {
+            self_abs -= (2*PI);
+
+        }
+        if (self_abs > 0.5f*PI){
+            if(self_abs <= PI){
+                self_abs = (PI - self_abs);
+            }
+            else if(self_abs <= 1.5f*PI){
+                sign_outside = !sign_outside;
+                self_abs = self_abs - PI;
+            }
+            else{
+                sign_outside = !sign_outside;
+                self_abs = 2*PI - self_abs;
+            }
+        }
+        uint64_t target = (self_abs.int_value << self_abs.frac_length) | self_abs.frac_value;
+        int x_value_next, y_value_next;
+        int z = 0,d = 1;
+        for (int i = 0; i < 16;i++){
+            if (d == 1){
+                x_value_next = x_value + ~(y_value >> i) + 1;
+                y_value_next = y_value + (x_value >> i);
+                z = z + LookUpTableI[i];
+            }
+            else{
+                x_value_next = x_value + (y_value >> i);
+                y_value_next = y_value + ~(x_value >> i) + 1;
+                z = z - LookUpTableI[i];
+            }
+            d = (z < static_cast<int>(target)) ? 1 : -1;
+            x_value = x_value_next;
+            y_value = y_value_next;
+        }
+        if (y_value_next <0){
+            y_value_next = 0;
+            sign_outside = false;
+        } 
+        uint64_t new_int = (y_value_next >> frac_length) & int_mask,
+                 new_frac = y_value_next & frac_mask;
+        return FixedPoint(sign_outside, new_int, new_frac);
     }
-    friend FixedPoint cos_pi(const FixedPoint& fp) {
-        return fp.cos_pi();
+    friend FixedPoint sin(const FixedPoint& fp) {
+        return fp.sin();
+    }
+    FixedPoint cos()const {
+        float LookUpTableF[16] = {
+        45, 26.56505118, 14.03624347, 7.125016349, 3.576333475, 1.789910608,
+        0.89517371, 0.447614171, 0.2238105, 0.111905677, 0.055952892, 0.027976453,
+        0.013988227, 0.006994114, 0.003497057, 0.001748528
+        };
+        uint64_t LookUpTableI[16];
+        for (int i = 0; i < 16;i++){
+            float angle = (LookUpTableF[i] * PI) / 180;
+            float ang_int = std::floor(angle), ang_frac = angle - ang_int; 
+            uint64_t int_value = static_cast<uint64_t>(ang_int);
+            uint64_t frac_value = static_cast<uint64_t>(std::round(ang_frac * (1 << fraction)));
+            LookUpTableI[i] = (int_value << frac_length) | frac_value;
+        }
+       /*  for(int i =0;i<16;i++){
+            std::cout << "|" << LookUpTableI[i] << "|";
+        } */
+        bool sign_outside = false;
+        float x_f = Kn;
+        float x_int = std::floor(x_f), x_frac = x_f - x_int; 
+        uint64_t x_int_value = static_cast<uint64_t>(x_int);
+        uint64_t x_frac_value = static_cast<uint64_t>(std::round(x_frac * (1 << fraction)));
+        uint64_t x_value = (x_int_value << fraction) | x_frac_value;
+        uint64_t y_value = 0;
+
+        FixedPoint<integer,fraction> self_abs = FixedPoint(false, int_value, frac_value);
+        while (self_abs > (2*PI))
+        {
+            self_abs -= (2*PI);
+
+        }
+        if (self_abs > 0.5f*PI){
+            if(self_abs <= PI){
+                self_abs = (PI - self_abs);
+                sign_outside = !sign_outside;
+            }
+            else if(self_abs <= 1.5f*PI){
+                sign_outside = !sign_outside;
+                self_abs = self_abs - PI;
+            }
+            else{
+                self_abs = 2*PI - self_abs;
+            }
+        }
+        uint64_t target = (self_abs.int_value << self_abs.frac_length) | self_abs.frac_value;
+        int x_value_next, y_value_next;
+        int z = 0,d = 1;
+        for (int i = 0; i < 16;i++){
+            if (d == 1){
+                x_value_next = x_value + ~(y_value >> i) + 1;
+                y_value_next = y_value + (x_value >> i);
+                z = z + LookUpTableI[i];
+            }
+            else{
+                x_value_next = x_value + (y_value >> i);
+                y_value_next = y_value + ~(x_value >> i) + 1;
+                z = z - LookUpTableI[i];
+            }
+            d = (z < static_cast<int>(target)) ? 1 : -1;
+            x_value = x_value_next;
+            y_value = y_value_next;
+        }
+
+        uint64_t new_int = (x_value_next >> frac_length) & int_mask,
+                 new_frac = x_value_next & frac_mask;
+        return FixedPoint(sign_outside, new_int, new_frac);
+    }
+    friend FixedPoint cos(const FixedPoint& fp) {
+        return fp.cos();
     }
     
     /* Binary Operator */
