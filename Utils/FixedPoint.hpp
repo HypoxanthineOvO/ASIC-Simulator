@@ -132,7 +132,7 @@ public:
         *this = FixedPoint(val_str);
         return *this;
     }
-    
+
 
     /* Unary Operator */
     FixedPoint neg() const {
@@ -255,9 +255,9 @@ public:
             uint64_t frac_value = static_cast<uint64_t>(std::round(ang_frac * (1 << fraction)));
             LookUpTableI[i] = (int_value << frac_length) | frac_value;
         }
-         for(int i =0;i<16;i++){
-            std::cout << "|" << LookUpTableI[i] << "|";
-        } 
+        // for(int i =0;i<16;i++){
+        //     std::cout << "|" << LookUpTableI[i] << "|";
+        // } 
         bool sign_outside = sign;
         float x_f = Kn;
         float x_int = std::floor(x_f), x_frac = x_f - x_int; 
@@ -340,22 +340,22 @@ public:
         uint64_t y_value = 0;
 
         FixedPoint<integer,fraction> self_abs = FixedPoint(false, int_value, frac_value);
-        while (self_abs > (2*PI))
+        while (self_abs > (2 * PI))
         {
-            self_abs -= (2*PI);
+            self_abs -= (2 * PI);
 
         }
-        if (self_abs > 0.5f*PI){
+        if (self_abs > 0.5f * PI){
             if(self_abs <= PI){
                 self_abs = (PI - self_abs);
                 sign_outside = !sign_outside;
             }
-            else if(self_abs <= 1.5f*PI){
+            else if(self_abs <= 1.5f * PI){
                 sign_outside = !sign_outside;
                 self_abs = self_abs - PI;
             }
             else{
-                self_abs = 2*PI - self_abs;
+                self_abs = 2 * PI - self_abs;
             }
         }
         uint64_t target = (self_abs.int_value << self_abs.frac_length) | self_abs.frac_value;
@@ -647,6 +647,10 @@ public:
         }
         // Remove the possible trailing zeros
         while (num_str.back() == '0') {
+            // If the last character is '.', save it and add a zero to the end
+            if (num_str[num_str.length() - 2] == '.' && num_str.back() == '0') {
+                break;
+            }
             num_str.pop_back();
         }
         return num_str;
