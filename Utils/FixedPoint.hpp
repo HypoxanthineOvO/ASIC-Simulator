@@ -110,6 +110,29 @@ public:
         frac_value = other.frac_value & frac_mask;
         return *this;
     }
+    FixedPoint& operator=(FixedPoint&& other) {
+        sign = other.sign;
+        int_value = other.int_value & int_mask;
+        frac_value = other.frac_value & frac_mask;
+        return *this;
+    }
+    FixedPoint& operator=(int val) {
+        *this = FixedPoint(val);
+        return *this;
+    }
+    FixedPoint& operator=(float val) {
+        *this = FixedPoint(val);
+        return *this;
+    }
+    FixedPoint& operator=(double val) {
+        *this = FixedPoint(val);
+        return *this;
+    }
+    FixedPoint& operator=(std::string val_str) {
+        *this = FixedPoint(val_str);
+        return *this;
+    }
+    
 
     /* Unary Operator */
     FixedPoint neg() const {

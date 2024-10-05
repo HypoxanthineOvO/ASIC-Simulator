@@ -19,6 +19,13 @@ int main() {
     printf("\tFP6: Double Initialization: %d %d %d -> %s\n", fp6.get_sign(), fp6.get_int_value(), fp6.get_frac_value(), fp6.to_string().c_str());
     FixedPoint<2, 4> fp7("0.1011", 2); // Test for string initialization
     printf("\tFP7: String Initialization: %d %d %d -> %s\n", fp7.get_sign(), fp7.get_int_value(), fp7.get_frac_value(), fp7.to_string().c_str());
+    FixedPoint<2, 4> fp8 = 1.25; // Test for implicit conversion
+    printf("\tFP8: Implicit Conversion: %d %d %d -> %s\n", fp8.get_sign(), fp8.get_int_value(), fp8.get_frac_value(), fp8.to_string().c_str());
+    FixedPoint<2, 4> fp9 = 2; // Test for implicit conversion
+    printf("\tFP9: Implicit Conversion: %d %d %d -> %s\n", fp9.get_sign(), fp9.get_int_value(), fp9.get_frac_value(), fp9.to_string().c_str());
+    float f = -0.25;
+    FixedPoint<2, 4> fp10 = f; // Test for implicit conversion
+    printf("\tFP10: Implicit Conversion: %d %d %d -> %s\n", fp10.get_sign(), fp10.get_int_value(), fp10.get_frac_value(), fp10.to_string().c_str());
 
     // TODO: Noticed that initialize from other FixedPoint maybe lose some information
 
