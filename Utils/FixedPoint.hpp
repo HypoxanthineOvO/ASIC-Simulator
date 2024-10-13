@@ -167,13 +167,15 @@ public:
             exp_int_pos[i] = std::round(std::exp(1 << i) * (1 << frac_length));
             exp_int_neg[i] = std::round(std::exp(-1 << i) * (1 << frac_length));
         }
-        uint64_t expx_int = 1, expx_frac = 1;
+        uint64_t expx_int = 1 << frac_length, expx_frac = 1 << frac_length;
         for (int i = 0; i < frac_length; i++) {
             if (frac_x >> (frac_length - i - 1) & 1) {
                 if (sign) {
                     expx_frac *= exp_frac_neg[i];
+                    expx_frac = expx_frac >> frac_length;
                 } else {
                     expx_frac *= exp_frac_pos[i];
+                    expx_frac = expx_frac >> frac_length;
                 }
             }
         }
@@ -186,8 +188,10 @@ public:
                 if (int_x & (1 << i)) {
                     if (sign) {
                         expx_int *= exp_int_neg[i];
+                        expx_int = expx_int >> frac_length;
                     } else {
                         expx_int *= exp_int_pos[i];
+                        expx_int = expx_int >> frac_length;
                     }
                 }
             }

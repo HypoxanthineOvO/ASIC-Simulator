@@ -101,14 +101,14 @@ int main() {
     printf("\tFP_Sub_1 = FP_Add_1 - FP_Add_2: %s\n", fp_sub_1.to_string().c_str());
     printf("\n");
 
-    FixedPoint<2, 8> fp_mul_1("-0.1101");
+    FixedPoint<8, 8> fp_mul_1(-4.1101);
     printf("\tFP_Mul_1: %s\n", fp_mul_1.to_string().c_str());
-    FixedPoint<2, 8> fp_mul_2("0.1011");
+    FixedPoint<8, 8> fp_mul_2(2.1011);
     printf("\tFP_Mul_2: %s\n", fp_mul_2.to_string().c_str());
-    FixedPoint<2, 8> fp_mul_3 = fp_mul_1 * fp_mul_2;
+    FixedPoint<8, 8> fp_mul_3 = fp_mul_1 * (1-5.442) *  + fp_mul_2 * 2;
     printf("\tFP_Mul_3 = FP_Mul_1 * FP_Mul_2: %s\n", fp_mul_3.to_string().c_str());
 
-    FixedPoint<2, 8> fp_div_1 = fp_mul_1 / fp_mul_2;
+    FixedPoint<8, 8> fp_div_1 = fp_mul_1 / fp_mul_2;
     printf("\tFP_Div_1 = FP_Mul_1 / FP_Mul_2: %s\n", fp_div_1.to_string().c_str());
     FixedPoint<2, 8> fp_div_2(0.75);
     printf("\tFP_Div_2: %s\n", fp_div_2.to_string().c_str());
