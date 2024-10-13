@@ -217,15 +217,15 @@ public:
         if (frac_length < 5) {
             // frac_length < 5
             if (int_length >= 2 && x.abs() >= FixedPoint(4.0))  result = FixedPoint(1.0);
-            else if (x.abs() >= FixedPoint(1.0))                result = FixedPoint(0.125) * x + FixedPoint(0.625);
-            else                                                result = FixedPoint(0.25) * x + FixedPoint(0.5);
+            else if (x.abs() >= FixedPoint(1.0))                result = FixedPoint(0.125) * x.abs() + FixedPoint(0.625);
+            else                                                result = FixedPoint(0.25) * x.abs() + FixedPoint(0.5);
         }
         else {
             // frac_length >= 5
             if (int_length >= 3 && x.abs() >= FixedPoint(5.0))          result = FixedPoint(1.0);
-            else if (int_length >= 2 && x.abs() >= FixedPoint(2.375))   result = FixedPoint(0.03125) * x + FixedPoint(0.84375);
-            else if (int_length >= 1 && x.abs() >= FixedPoint(1.0))     result = FixedPoint(0.125) * x + FixedPoint(0.625);
-            else                                                        result = FixedPoint(0.25) * x + FixedPoint(0.5);
+            else if (int_length >= 2 && x.abs() >= FixedPoint(2.375))   result = FixedPoint(0.03125) * x.abs() + FixedPoint(0.84375);
+            else if (int_length >= 1 && x.abs() >= FixedPoint(1.0))     result = FixedPoint(0.125) * x.abs() + FixedPoint(0.625);
+            else                                                        result = FixedPoint(0.25) * x.abs() + FixedPoint(0.5);
         }
         // For negative value, sigmoid(-x) = 1 - sigmoid(x)
         if (sign) result = FixedPoint(1.0) - result;
