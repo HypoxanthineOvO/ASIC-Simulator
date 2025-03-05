@@ -6,8 +6,20 @@
 #define PI 3.1415926535
 #define Kn 0.607252935
 #include <cstdint>
+
+
 template <uint64_t integer, uint64_t fraction>
 class FixedPoint {
+private:
+    bool sign;
+    uint64_t int_value;
+    uint64_t int_length;
+    uint64_t int_mask;
+    
+    uint64_t frac_value;
+    uint64_t frac_length;
+    uint64_t frac_mask;
+
 public:
     /* Constructors */
     // Default: Initialize to Fixed Point 0
@@ -685,14 +697,6 @@ public:
         return sign ? -(val + frac) : val + frac;
     }
 
-private:
-    bool sign;
-    uint64_t int_value;
-    uint64_t int_length;
-    uint64_t int_mask;
-    uint64_t frac_value;
-    uint64_t frac_length;
-    uint64_t frac_mask;
 };
 
 #endif // FIXEDPOINT_HPP_

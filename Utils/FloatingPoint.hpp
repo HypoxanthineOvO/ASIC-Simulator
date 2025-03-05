@@ -2,17 +2,29 @@
 #define FLOATINGPOINT_HPP_
 
 #include <cstdint>
+
+
 template <uint64_t exponent, uint64_t mantissa>
 class FloatingPoint {
-/* Floating Point Value: Value = (-1)^{sign} * 2 ^ {e - } * 1.f*/
+private:
+    bool sign;
+    uint64_t exponent_value;
+    uint64_t exponent_length;
+
+    uint64_t mantissa_value;
+    uint64_t mantissa_length;
 
 public:
     // Default: Initialize to Floating Point 0
     FloatingPoint();
-private:
-    bool sign;
-    uint64_t exp_value;
-    uint64_t mant_value;
+
+    typedef enum STATE {
+        NORMAL,
+        SUBNORMAL,
+        ZERO,
+        INF,
+        NAN,
+    } State;
 };
 
 #endif // FLOATINGPOINT_HPP_
