@@ -105,7 +105,7 @@ int main() {
     printf("\tFP_Mul_1: %s\n", fp_mul_1.to_string().c_str());
     FixedPoint<8, 8> fp_mul_2(2.1011);
     printf("\tFP_Mul_2: %s\n", fp_mul_2.to_string().c_str());
-    FixedPoint<8, 8> fp_mul_3 = fp_mul_1 * (1-5.442) *  + fp_mul_2 * 2;
+    FixedPoint<8, 8> fp_mul_3 = fp_mul_1 * (1-5.442)  + fp_mul_2 * 2;
     printf("\tFP_Mul_3 = FP_Mul_1 * FP_Mul_2: %s\n", fp_mul_3.to_string().c_str());
 
     FixedPoint<8, 8> fp_div_1 = fp_mul_1 / fp_mul_2;
@@ -221,4 +221,13 @@ int main() {
     printf("\tFP_Cos_19:%s\n", fp_cos_19.to_string().c_str());
     FixedPoint<3, 30> fp_cos_20 = fp_cos_19.cos();
     printf("\tFP_Cos_20 = cos(FP_Cos_19) = %s\n", fp_cos_20.to_string().c_str());
+
+    // Assignment and initialize
+    FixedPoint<4, 4> fp_assign_1(1.375);
+    printf("\tFP_Assign_1: %s\n", fp_assign_1.to_string().c_str());
+    FixedPoint<4, 2> fp_assign_2 = fp_assign_1;
+    printf("\tFP_Assign_2 = FP_Assign_1: %s\n", fp_assign_2.to_string().c_str());
+
+    FixedPoint<4, 2> fp_assign_3(1.375);
+    printf("\tFP_Assign_3: %s\n", fp_assign_3.to_string().c_str());
 }

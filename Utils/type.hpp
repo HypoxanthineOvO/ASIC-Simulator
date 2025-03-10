@@ -13,7 +13,7 @@ using Half = FloatingPoint<5, 10>;
 using Float = FloatingPoint<8, 23>;
 using Double = FloatingPoint<11, 52>;
 
-
+using CA25 = FloatingPoint<32, 31>;
 
 
 #endif // TYPE_HPP_

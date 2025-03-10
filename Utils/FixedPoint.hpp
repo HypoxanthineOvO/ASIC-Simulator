@@ -15,12 +15,21 @@ private:
     uint64_t int_value;
     uint64_t int_length;
     uint64_t int_mask;
-    
+
     uint64_t frac_value;
     uint64_t frac_length;
     uint64_t frac_mask;
 
 public:
+    /* Getters and Setters */
+    bool get_sign() const { return sign; }
+    uint64_t get_int_value() const { return int_value; }
+    uint64_t get_frac_value() const { return frac_value; }
+    uint64_t get_int_length() const { return int_length; }
+    uint64_t get_frac_length() const { return frac_length; }
+    uint64_t get_int_mask() const { return int_mask; }
+    uint64_t get_frac_mask() const { return frac_mask; }
+
     /* Constructors */
     // Default: Initialize to Fixed Point 0
     FixedPoint(): sign(false), int_value(0), frac_value(0),
@@ -46,7 +55,6 @@ public:
         sign = (val < 0);
         float abs_val = std::abs(val);
         float val_int = std::floor(abs_val), val_frac = abs_val - val_int;
-        //printf("val_int: %f, val_frac: %f\n", val_int, val_frac);
         int_value = static_cast<uint64_t>(val_int);
         frac_value = static_cast<uint64_t>(
             std::round(val_frac * (1 << fraction))
@@ -92,7 +100,6 @@ public:
         }
         int_value &= int_mask;
         // Move the fraction part to the right position
-        // Show the binary value of self_val and other_val
         int frac_str_length = val_str.length() - end - 1;
         if (frac_str_length > fraction) {
             frac_value >>= (frac_str_length - fraction);
@@ -104,30 +111,127 @@ public:
     }
     
     // Copy Constructor
-    FixedPoint(const FixedPoint& other): sign(other.sign), 
-        int_length(integer), frac_length(fraction),
-        int_mask((1 << integer) - 1), frac_mask((1 << fraction) - 1) {
-        int_value = other.int_value & int_mask;
-        frac_value = other.frac_value & frac_mask;
+    // FixedPoint(const FixedPoint& other): sign(other.sign), 
+    //     int_length(integer), frac_length(fraction),
+    //     int_mask((1 << integer) - 1), frac_mask((1 << fraction) - 1) {
+    //     int_value = other.int_value & int_mask;
+    //     frac_value = other.frac_value & frac_mask;
+    // }
+    template <uint64_t other_integer, uint64_t other_fraction>
+    FixedPoint(const FixedPoint<other_integer, other_fraction>& other)
+        : sign(other.get_sign()), int_length(integer), frac_length(fraction),
+          int_mask((1ULL << integer) - 1), frac_mask((1ULL << fraction) - 1) {
+        // 处理整数部分：截断高位
+        if (other_integer > integer) {
+            int_value = other.get_int_value() & ((1ULL << integer) - 1); // 只保留低 integer 位
+        } else {
+            int_value = other.get_int_value(); // 直接赋值
+        }
+
+        // 处理小数部分：截断低位
+        if (other_fraction > fraction) {
+            frac_value = other.get_frac_value() >> (other_fraction - fraction); // 右移截断低位
+        } else {
+            frac_value = other.get_frac_value(); // 直接赋值
+        }
+
+        // 应用掩码
+        int_value &= int_mask;
+        frac_value &= frac_mask;
     }
     // Move Constructor
-    FixedPoint(FixedPoint&& other): sign(other.sign), int_value(other.int_value), frac_value(other.frac_value), int_mask((1 << integer) - 1), frac_mask((1 << fraction) - 1) {
+    // FixedPoint(FixedPoint&& other): sign(other.sign), int_value(other.int_value), frac_value(other.frac_value), int_mask((1 << integer) - 1), frac_mask((1 << fraction) - 1) {
+    //     int_value &= int_mask;
+    //     frac_value &= frac_mask;
+    // }
+    template <uint64_t other_integer, uint64_t other_fraction>
+    FixedPoint(FixedPoint<other_integer, other_fraction>&& other)
+        : sign(other.sign), int_length(integer), frac_length(fraction),
+          int_mask((1ULL << integer) - 1), frac_mask((1ULL << fraction) - 1) {
+        // 处理整数部分：截断高位
+        if (other_integer > integer) {
+            int_value = other.get_int_value() & ((1ULL << integer) - 1); // 只保留低 integer 位
+        } else {
+            int_value = other.get_int_value(); // 直接赋值
+        }
+
+        // 处理小数部分：截断低位
+        if (other_fraction > fraction) {
+            frac_value = other.get_frac_value() >> (other_fraction - fraction); // 右移截断低位
+        } else {
+            frac_value = other.get_frac_value(); // 直接赋值
+        }
+
+        // 应用掩码
         int_value &= int_mask;
         frac_value &= frac_mask;
     }
     // Assignment Operator
-    FixedPoint& operator=(const FixedPoint& other) {
+    // FixedPoint& operator=(const FixedPoint& other) {
+    //     sign = other.sign;
+    //     int_value = other.int_value & int_mask;
+    //     frac_value = other.frac_value & frac_mask;
+    //     return *this;
+    // }
+    // FixedPoint& operator=(FixedPoint&& other) {
+    //     sign = other.sign;
+    //     int_value = other.int_value & int_mask;
+    //     frac_value = other.frac_value & frac_mask;
+    //     return *this;
+    // }
+    template <uint64_t other_integer, uint64_t other_fraction>
+    FixedPoint& operator=(const FixedPoint<other_integer, other_fraction>& other) {
+        // 处理符号
         sign = other.sign;
-        int_value = other.int_value & int_mask;
-        frac_value = other.frac_value & frac_mask;
+
+        // 处理整数部分：截断高位
+        if (other_integer > integer) {
+            int_value = other.get_int_value() & ((1ULL << integer) - 1); // 只保留低 integer 位
+        } else {
+            int_value = other.get_int_value(); // 直接赋值
+        }
+
+        // 处理小数部分：截断低位
+        if (other_fraction > fraction) {
+            frac_value = other.get_frac_value() >> (other_fraction - fraction); // 右移截断低位
+        } else {
+            frac_value = other.get_frac_value(); // 直接赋值
+        }
+
+        // 应用掩码
+        int_value &= int_mask;
+        frac_value &= frac_mask;
+
         return *this;
     }
-    FixedPoint& operator=(FixedPoint&& other) {
+
+    // 移动赋值操作符（支持不同位宽）
+    template <uint64_t other_integer, uint64_t other_fraction>
+    FixedPoint& operator=(FixedPoint<other_integer, other_fraction>&& other) {
+        // 处理符号
         sign = other.sign;
-        int_value = other.int_value & int_mask;
-        frac_value = other.frac_value & frac_mask;
+
+        // 处理整数部分：截断高位
+        if (other_integer > integer) {
+            int_value = other.get_int_value() & ((1ULL << integer) - 1); // 只保留低 integer 位
+        } else {
+            int_value = other.get_int_value(); // 直接赋值
+        }
+
+        // 处理小数部分：截断低位
+        if (other_fraction > fraction) {
+            frac_value = other.get_frac_value() >> (other_fraction - fraction); // 右移截断低位
+        } else {
+            frac_value = other.get_frac_value(); // 直接赋值
+        }
+
+        // 应用掩码
+        int_value &= int_mask;
+        frac_value &= frac_mask;
+
         return *this;
     }
+
     FixedPoint& operator=(int val) {
         *this = FixedPoint(val);
         return *this;
@@ -638,14 +742,14 @@ public:
         return !(*this < other);
     };
 
-    // Getter
-    bool get_sign() const { return sign; }
-    uint64_t get_int_value() const { return int_value; }
-    uint64_t get_frac_value() const { return frac_value; }
-    // Setter
-    void set_sign(bool sign) { this->sign = sign; }
-    void set_int_value(uint64_t int_value) { this->int_value = int_value; }
-    void set_frac_value(uint64_t frac_value) { this->frac_value = frac_value; }
+    // // Getter
+    // bool get_sign() const { return sign; }
+    // uint64_t get_int_value() const { return int_value; }
+    // uint64_t get_frac_value() const { return frac_value; }
+    // // Setter
+    // void set_sign(bool sign) { this->sign = sign; }
+    // void set_int_value(uint64_t int_value) { this->int_value = int_value; }
+    // void set_frac_value(uint64_t frac_value) { this->frac_value = frac_value; }
 
     // For printing
     std::string to_string() const {
